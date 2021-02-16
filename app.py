@@ -12,6 +12,9 @@ bg = pygame.image.load("images/background.jpg")
 bg = pygame.transform.scale(bg, (840, 540))
 win.blit(bg, (0, 0))
 
+pygame.font.init()
+myfont = pygame.font.SysFont('Arial', 30, True)
+
 cards = []
 path = "images/cards"
 imageFolder = os.listdir(path)
@@ -98,25 +101,37 @@ print(add_values(dealerHand))
 
 
 class Button:
-    def __init__(self, buttonX, buttonY, buttonWidth, buttonHeight):
+    def __init__(self, buttonX, buttonY, image, onPressed):
         self.buttonX = buttonX
         self.buttonY = buttonY
-        self.buttonWidth = buttonWidth
-        self.buttonHeight = buttonHeight
+        self.image = image
+        self.onPressed = onPressed
 
     def draw(self):
-        pygame.draw.rect(win, (60, 60, 60),
-                         (self.buttonX, self.buttonY, self.buttonWidth, self.buttonHeight))
+        hold = pygame.image.load("images/buttons/" + self.image)
+        win.blit(hold, (self.buttonX, self.buttonY))
 
-    def pressed():
-        pass
+    def pressed(self):
+        self.onPressed()
 
 
-button1X, button1Y, button1Width, button1Height = 620, 320, 120, 70
-button2X, button2Y, button2Width, button2Height = 620, 420, 120, 70
+def new_card():
+    print("new_card")
 
-button1 = Button(button1X, button1Y, button1Width, button1Height)
-button2 = Button(button2X, button2Y, button2Width, button2Height)
+
+def hold():
+    print("hold")
+
+
+button1X, button1Y, button1Width, button1Height = 550, 320, 168, 70
+button2X, button2Y, button2Width, button2Height = 550, 420, 168, 70
+
+button1 = Button(button1X, button1Y, "hold.png", new_card)
+button2 = Button(button2X, button2Y, "new_card.png", hold)
+
+# buttonText1 = myfont.render('Card', True, (0, 0, 0))
+# button2 = Button(button2X, button2Y, button2Width, button2Height)
+
 
 run = True
 while run:
@@ -124,6 +139,9 @@ while run:
     display_player_hand()
     button1.draw()
     button2.draw()
+    # button2.draw()
+    # win.blit(buttonText1, (button1X + 25, button1Y + 15))
+
     pygame.display.update()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -132,3 +150,7 @@ while run:
             x, y = pygame.mouse.get_pos()
             if button1X < x < button1X + button1Width and button1Y < y < button1Y + button1Height:
                 print("Button 1 pressed")
+                button1.pressed()
+            if button2X < x < button2X + button1Width and button2Y < y < button2Y + button2Height:
+                print("Button 2 pressed")
+                button2.pressed()
