@@ -23,6 +23,14 @@ playerHand = []
 dealerHand = []
 
 
+def resize_image(image, size):
+    height = image.get_height()
+    width = image.get_width()
+    ratio = width / height
+    rezizedImage = pygame.transform.scale(image, (int(size * ratio), size))
+    return rezizedImage
+
+
 class Card:
     def __init__(self, path, value):
         self.path = path
@@ -30,12 +38,7 @@ class Card:
 
     def show(self, win, pos):                                          # pos with form (x, y)
         card = pygame.image.load("images/cards/" + self.path)
-        cardHeight = card.get_height()
-        cardWidth = card.get_width()
-        cardRatio = cardWidth / cardHeight
-        cardSize = 200
-        card = pygame.transform.scale(
-            card, (int(cardSize * cardRatio), cardSize))
+        card = resize_image(card, 150)
         win.blit(card, pos)
 
 
@@ -66,17 +69,25 @@ def give_card(hand):
 
 
 def display_dealer_hand():
-    x, y = 80, 40
+    x, y = 100, 40
     for card in dealerHand:
         card.show(win, (x, y))
         x += 50
+    dealerText = pygame.image.load("images/text/Dealer.png")
+    dealerText = pygame.transform.rotate(dealerText, 90)
+    dealerText = resize_image(dealerText, 250)
+    win.blit(dealerText, (0, 0))
 
 
 def display_player_hand():
-    x, y = 80, 300
+    x, y = 100, 300
     for card in playerHand:
         card.show(win, (x, y))
         x += 50
+    playerText = pygame.image.load("images/text/Player.png")
+    playerText = pygame.transform.rotate(playerText, 90)
+    playerText = resize_image(playerText, 250)
+    win.blit(playerText, (0, 260))
 
 
 def add_values(hand):
@@ -97,7 +108,6 @@ give_card(dealerHand)
 give_card(dealerHand)
 give_card(playerHand)
 give_card(playerHand)
-print(add_values(dealerHand))
 
 
 class Button:
@@ -117,19 +127,21 @@ class Button:
 
 def new_card():
     print("new_card")
+    give_card(playerHand)
 
 
 def hold():
     print("hold")
 
 
-button1X, button1Y, button1Width, button1Height = 550, 320, 168, 70
-button2X, button2Y, button2Width, button2Height = 550, 420, 168, 70
+button1X, button1Y, button1Width, button1Height = 580, 320, 168, 70
+button2X, button2Y, button2Width, button2Height = 580, 420, 168, 70
 
-button1 = Button(button1X, button1Y, "hold.png", new_card)
-button2 = Button(button2X, button2Y, "new_card.png", hold)
+button1 = Button(button1X, button1Y, "hold.png", hold)
+button2 = Button(button2X, button2Y, "new_card.png", new_card)
 
-# buttonText1 = myfont.render('Card', True, (0, 0, 0))
+sumDealer = myfont.render(str(add_values(dealerHand)), True, (0, 0, 0))
+sumPlayer = myfont.render(str(add_values(playerHand)), True, (0, 0, 0))
 # button2 = Button(button2X, button2Y, button2Width, button2Height)
 
 
@@ -140,7 +152,7 @@ while run:
     button1.draw()
     button2.draw()
     # button2.draw()
-    # win.blit(buttonText1, (button1X + 25, button1Y + 15))
+    win.blit(sumDealer, (button1X + 25, button1Y + 15))
 
     pygame.display.update()
     for event in pygame.event.get():
@@ -149,8 +161,6 @@ while run:
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
             if button1X < x < button1X + button1Width and button1Y < y < button1Y + button1Height:
-                print("Button 1 pressed")
                 button1.pressed()
             if button2X < x < button2X + button1Width and button2Y < y < button2Y + button2Height:
-                print("Button 2 pressed")
                 button2.pressed()
