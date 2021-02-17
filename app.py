@@ -1,6 +1,7 @@
 import pygame
 import os
 from random import randint
+import time
 
 pygame.init()
 
@@ -10,7 +11,6 @@ win = pygame.display.set_mode(SIZE)
 pygame.display.set_caption('Black Jack')
 bg = pygame.image.load("images/background.jpg")
 bg = pygame.transform.scale(bg, (840, 540))
-win.blit(bg, (0, 0))
 
 pygame.font.init()
 myfont = pygame.font.SysFont('Arial', 30, True)
@@ -58,12 +58,9 @@ def card_value(card):
 for path in imageFolder:
     cards.append(Card(path, card_value(path)))
 
-# for card in cards:
-#     print([card.path, card.value])
-
 
 def give_card(hand):
-    card = cards[randint(0, len(cards))]
+    card = cards[randint(0, len(cards)-1)]
     cards.remove(card)
     hand.append(card)
 
@@ -99,6 +96,8 @@ def add_values(hand):
         if type(value) == list:
             if sum + 11 < 21:
                 sum += value[1]
+ #           elif hand == dealerHand:
+ #              sum += value[0]
             else:
                 sum += value[0]
     return sum
@@ -126,12 +125,16 @@ class Button:
 
 
 def new_card():
-    print("new_card")
-    give_card(playerHand)
+    if add_values(playerHand) < 21:
+        give_card(playerHand)
 
 
 def hold():
-    print("hold")
+    while add_values(dealerHand) < 17:
+        give_card(dealerHand)
+        display_dealer_hand()
+        win.blit(show_sum(dealerHand), (150, 210))
+        time.sleep(1)
 
 
 button1X, button1Y, button1Width, button1Height = 580, 320, 168, 70
@@ -140,19 +143,25 @@ button2X, button2Y, button2Width, button2Height = 580, 420, 168, 70
 button1 = Button(button1X, button1Y, "hold.png", hold)
 button2 = Button(button2X, button2Y, "new_card.png", new_card)
 
-sumDealer = myfont.render(str(add_values(dealerHand)), True, (0, 0, 0))
-sumPlayer = myfont.render(str(add_values(playerHand)), True, (0, 0, 0))
-# button2 = Button(button2X, button2Y, button2Width, button2Height)
+
+def show_sum(hand):
+    sum = myfont.render(
+        str(add_values(hand)), True, (220, 220, 220))
+    return sum
 
 
 run = True
 while run:
+    win.blit(bg, (0, 0))
+
     display_dealer_hand()
     display_player_hand()
     button1.draw()
     button2.draw()
     # button2.draw()
-    win.blit(sumDealer, (button1X + 25, button1Y + 15))
+
+    win.blit(show_sum(dealerHand), (150, 210))
+    win.blit(show_sum(playerHand), (150, 470))
 
     pygame.display.update()
     for event in pygame.event.get():
@@ -164,3 +173,5 @@ while run:
                 button1.pressed()
             if button2X < x < button2X + button1Width and button2Y < y < button2Y + button2Height:
                 button2.pressed()
+                sumPlayer = myfont.render(
+                    str(add_values(playerHand)), True, (220, 220, 220))
